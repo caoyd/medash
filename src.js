@@ -1,30 +1,41 @@
 
 let medash = {
-	init: function() {
-
+	init() {
+		// requestAnimationFrame
+		window.requestAnimationFrame = () => {
+			return window.requestAnimationFrame || window.webkitRequestAnimationFrame || window.mozRequestAnimationFrame || window.msRequestAnimationFrame || window.oRequestAnimationFrame || (e, t) => {
+				return setTimeout(e, 1e3 / 60);
+			};
+		};
 	},
 
 	// string
-	string: function() {
-		String.prototype.replaceAll = function(replaceFrom, replaceTo) {
+	string() {
+		String.prototype.replaceAll = (replaceFrom, replaceTo) => {
 			return this.replace(new RegExp(replaceFrom, 'gm'), replaceTo);
+		}
+		String.prototype.trim = () => {
+			return this.replace(/(^\s*)|(\s*)$/g, '');
 		}
 	},
 
 	// array
-	array: function() {
+	array() {
 		// unique
+		Array.prototype.unique = () => {
+
+		}
 	},
 
 	// url parameter
-	url: function(url) {
+	url(url) {
 
 	},
 
 	// store
 	store: {
-		get: function(key, value) {},
-		set: function(key, value) {},
+		get: (key, value) => {},
+		set: (key, value) => {},
 	},
 
 	// ajax
@@ -32,17 +43,22 @@ let medash = {
 
 	validate: {
 		// phone number
-		phone: function(str) {
+		phone(str) {
 			return /^1[3-9]\d{9}$/.test(str);
 		},
 
+		// email
+		email(str) {
+			return /^(?:\w+\.)*\w+@\w+(?:\.\w+)+$/i.test(str);
+		},
+
 		// identity card number
-		id: function(str) {
+		id(str) {
 			return /^[1-9]{1}[0-9]{14}$|^[1-9]{1}[0-9]{16}([0-9]|[xX])$/.test(str);
 		},
 
 		// ip address
-		ip: function(str) {
+		ip(str) {
 			return /^(\d{1,2}|1\d\d|2[0-4]\d|25[0-5])(\.(\d{1,2}|1\d\d|2[0-4]\d|25[0-5])){3}$/.test(str);
 		},
 
@@ -51,19 +67,19 @@ let medash = {
 
 	// DOM
 	// go to top
-	gotop: function(config) {
+	gotop(config) {
 		// to do
 	},
 	// detect surpport webp or not
-	isWebpWork: function() {
+	isWebpWork() {
 		// to do
 	},
 
 	// CSS
-	getStyle: function() {
-		// to do
+	getStyle(obj, attr) {
+		return obj.currentStyle ? obj.currentStyle[attr] : document.defaultView.getComputedStyle(obj, null)[attr];
 	},
-	transition: function() {
+	transition() {
 		let arr = ['transition', 'WebkitTransition', 'MozTransition', 'msTransition', 'OTransition'];
 		let el = document.createElement('div').style;
 		let res = '';
