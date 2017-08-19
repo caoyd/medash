@@ -1,0 +1,2 @@
+# medash
+Useful javascript functions
