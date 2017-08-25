@@ -24,6 +24,24 @@ let medash = {
 		String.prototype.isURL = function() {
 		  return /^(https?):\/\/((?:[a-z0-9.-]|%[0-9A-F]{2}){3,})(?::(\d+))?((?:\/(?:[a-z0-9-._~!$&'()*+,;=:@]|%[0-9A-F]{2})*)*)(?:\?((?:[a-z0-9-._~!$&'()*+,;=:\/?@]|%[0-9A-F]{2})*))?(?:#((?:[a-z0-9-._~!$&'()*+,;=:\/?@]|%[0-9A-F]{2})*))?$/i.test(this);
 		}
+		// thousands separate with commas
+		String.prototype.separate = function() {
+			return this.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ',');
+		}
+		// convert camel case to underline HelloWorld => hello_world
+		String.prototype.camelCaseToLine = function() {
+			return this.replace(/[A-Z]/g, (match, index) => {
+				return (index === 0 ? '' : '_') + match.toLowerCase();
+			});
+		}
+	},
+
+	// number
+	number() {
+		// thousands separate with commas
+		Number.prototype.separate = function() {
+			return String.prototype.separate.call(this);
+		}
 	},
 
 	// array
