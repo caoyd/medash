@@ -1,15 +1,19 @@
 /**
  * gulp 配置文件
- * @author      {coa}
+ * @author      {Coac}
  * @verstion    {1.0}
- * @create      {2017/09}
+ * @create      {2017/06}
  * @update      {2017/09}
  */
-let gulp = require('gulp');
+const gulp = require('gulp');
+// ES6 to ES5
+const babel = require('gulp-babel');
 // 更名
-let rename = require("gulp-rename");
+const rename = require("gulp-rename");
 // 压缩js
-let uglify = require('gulp-uglify');
+const uglify = require('gulp-uglify');
+// 桌面通知
+const notify = require('gulp-notify');
 
 // 路径及文件
 const PATH = {
@@ -17,26 +21,28 @@ const PATH = {
     dist: './',
 }
 
-// 处理器
-let handle = {
-    Errors: function(err){
-        console.log('-------------- '+ chalk.bold.red('~ Error ~') +' ------------')
-        console.log('message => ' + err.message)
-        console.log('plugin => ' + chalk.bold.red(err.plugin))
-        gulp.src(err.fileName) 
-            .pipe( notify("Error => <%= file.relative %>\nLine => " + err.lineNumber) )
-    },
-    Success: function(event){
-        console.log('-------------- '+ chalk.bold.green(event.type) +' ------------')
-        console.log('fileName => ' + event.path);   
-    }
+// 处理错误
+const reportError = function (error) {
+    notify({
+        title: 'Gulp Task Error',
+        message: 'Check the console.'
+    }).write(error);
+
+    console.log(error.toString());
+
+    this.emit('end');
 }
 
 // 压缩 js 文件
 gulp.task('compress', function() {
     gulp.src(PATH.src)
+        .pipe(babel(
+            {
+                'presets': ['es2015']
+            }
+        ))
         .pipe(uglify())
-        // .on('error', handle.Errors)
+        .on('error', reportError)
         .pipe(rename({
             extname: '.min.js'
         }))
@@ -45,6 +51,5 @@ gulp.task('compress', function() {
 
 // 监听任务
 gulp.task('default', function(){  
-    let watchJs = gulp.watch(PATH.src, ['compress']);  
-    // watchJs.on('change', handle.Success)
+    gulp.watch(PATH.src, ['compress']);  
 })

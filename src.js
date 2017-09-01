@@ -1,4 +1,10 @@
-
+/**
+ * 个人常用JS函数整理
+ * @author      {Coac}
+ * @verstion    {1.0}
+ * @create      {2017/06}
+ * @update      {2017/09}
+ */
 ;(function(factory) {
 	let isRegistedInModule = false;
 	if (typeof define === 'function' && define.amd) {
@@ -28,7 +34,7 @@
 
 			this.prefix();
 
-			// requestAnimationFrame
+			// requestAnimationFrame 
 			window.requestAnimationFrame = () => {
 				return window.requestAnimationFrame || window.webkitRequestAnimationFrame || window.mozRequestAnimationFrame || window.msRequestAnimationFrame || window.oRequestAnimationFrame || function(e, t) {
 					return setTimeout(e, 1e3 / 60);
@@ -212,7 +218,7 @@
 		// BOM
 		/**
 		* @desc 获取url参数
-		* @param {String} key [要获取的参数名]
+		* @param {String} key [要获取的参数名] 
 		* @param [String] inUrl [url地址，如果为空则使用location.search]
 		* @return {String}
 		*/
