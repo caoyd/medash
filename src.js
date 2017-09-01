@@ -34,7 +34,31 @@
 					return setTimeout(e, 1e3 / 60);
 				};
 			};
+
+			// detect surpport webp or not
+			(() => {
+				let webp = new Image();
+				webp.onload = () => {
+					this.isSupportWebp = !!(webp.width === 1 && webp.height === 1);
+				}
+				webp.onerror = () => {
+					this.isSupportWebp = false;
+				}
+				webp.src = 'data:image/webp;base64,UklGRiYAAABXRUJQVlA4IBoAAAAwAQCdASoBAAEAAAAMJaQAA3AA/v89WAAAAA==';
+			})();
 		},
+
+		// detect surpport webp or not
+		isSupportWebp: false,
+	
+		// detect browser support touch event
+		isSupportTouch: ('ontouchstart' in document.documentElement),
+
+		// detect surpport localStorage or not
+		isSupportStorage: typeof(localStorage) !== 'undefined',
+
+		cssPre: '',
+		jsPre: '',
 	
 		// string
 		string() {
@@ -100,16 +124,51 @@
 			})
 	
 		},
-	
-		// url parameter
-		url(url) {
-	
-		},
-	
+		
 		// store
 		store: {
-			get: (key, value) => {},
-			set: (key, value) => {},
+			get(key) {
+				if (!isSupportStorage) {
+					return this.getCookie(key);
+				}
+				return localStorage.getItem(key);
+			},
+			set(key, value, opts) {
+				if (!isSupportStorage) {	
+					return this.setCookie(key, value, opts);
+				}
+				localStorage.setItem(key, value);
+			},
+			remove(key) {
+				if (!isSupportStorage) {
+					return this.removeCookie(key);
+				}
+				localStorage.removeItem(key);
+			},
+			getCookie(key) {
+				let keyValue;
+				if (!key) {
+					return null;
+				}
+				keyValue = document.cookie.match('(^|;) ?' + key + '=([^;]*)(;|$)');
+				return keyValue ? decodeURIComponent(keyValue[2]) : null;
+			},
+			setCookie(key, value, opts) {
+				let expires = '';
+				let path = opts.path || '/';
+				if (arguments.length < 2) {
+					return;
+				}
+				if (opts.days) {
+					let date = new Date();
+					date.setTime(date.getTime() + (opts.days * 24 * 60 * 60 * 1000));
+					expires = ';expires=' + date.toGMTString();
+				}
+				document.cookie = encodeURIComponent(key) + '=' + encodeURIComponent(value) + expires + ';path=' + path;
+			},
+			removeCookie(key) {
+				this.setCookie(key, '', { days: -1 });
+			},
 		},
 	
 		// ajax
@@ -151,10 +210,21 @@
 		},
 	
 		// BOM
+		/**
+		* @desc 获取url参数
+		* @param {String} key [要获取的参数名]
+		* @param [String] inUrl [url地址，如果为空则使用location.search]
+		* @return {String}
+		*/
 		getUrlParam(key, inUrl) {
 			let url = inUrl ? inUrl : location.search;
-			return decodeURIComponent((new RegExp('[?|&]' + key + '=' + '([^&;]+?)(&|#|;|$)', 'ig').exec(url) || [, ''])[1].replace(/\+/g, '%20')) || null;
+			return decodeURIComponent((new RegExp('[?|&]' + key + '=' + '([^&;]+?)(&|#|;|$)', 'ig').exec(url) || [, ''])[1].replace(/\+/g, '%20')) || '';
 		},
+		/**
+		* @desc 获取所有url参数
+		* @param [String] inUrl [url地址，如果为空则使用location.search]
+		* @return {Object} e.g. { a: 'aaa', b: 'bbb' }
+		*/
 		getUrlParams(inUrl) {
 			let url = inUrl ? inUrl : location.search;
 			let arr = [];
@@ -169,23 +239,19 @@
 			return obj;
 		},
 	
-		// detect surpport webp or not
-		isWebpWork: false,
-	
-		// detect browser support touch event
-		isTouchable: ('ontouchstart' in document.documentElement),
-
-		cssPre: '',
-		jsPre: '',
-	
-		// CSS
+		/**
+		* @desc 获取元素计算后的样式
+		* @param {Element} obj [Dom元素]
+		* @param {String} attr [样式名]
+		* @return {String}
+		*/
 		getStyle(obj, attr) {
 			return obj.currentStyle ? obj.currentStyle[attr] : document.defaultView.getComputedStyle(obj, null)[attr];
 		},
 	
 		/**
 		* @desc 获取浏览器css和js前缀
-		* @return 返回objec，e.g. { css: '-webkit-', pre: 'webkit' }
+		* @return {Object}，e.g. { css: '-webkit-', pre: 'webkit' }
 		*/
 		prefix() {
 			let styles = window.getComputedStyle(document.documentElement, '');

@@ -1,0 +1,3 @@
+echo "run gulp"
+
+gulp
