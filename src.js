@@ -60,9 +60,6 @@
 		// detect browser support touch event
 		isSupportTouch: ('ontouchstart' in document.documentElement),
 
-		// detect surpport localStorage or not
-		isSupportStorage: typeof(localStorage) !== 'undefined',
-
 		cssPre: '',
 		jsPre: '',
 	
@@ -133,20 +130,22 @@
 		
 		// store
 		store: {
+			// detect surpport localStorage or not
+			isSupportStorage: typeof(localStorage) !== 'undefined', 
 			get(key) {
-				if (!isSupportStorage) {
+				if (!this.isSupportStorage) {
 					return this.getCookie(key);
 				}
 				return localStorage.getItem(key);
 			},
 			set(key, value, opts) {
-				if (!isSupportStorage) {	
+				if (!this.isSupportStorage) {	
 					return this.setCookie(key, value, opts);
 				}
 				localStorage.setItem(key, value);
 			},
 			remove(key) {
-				if (!isSupportStorage) {
+				if (!this.isSupportStorage) {
 					return this.removeCookie(key);
 				}
 				localStorage.removeItem(key);
@@ -159,9 +158,10 @@
 				keyValue = document.cookie.match('(^|;) ?' + key + '=([^;]*)(;|$)');
 				return keyValue ? decodeURIComponent(keyValue[2]) : null;
 			},
-			setCookie(key, value, opts) {
+			setCookie(key, value, options) {
 				let expires = '';
-				let path = opts.path || '/';
+				let opts = options ? options : {};
+				let path = opts.path || '';
 				if (arguments.length < 2) {
 					return;
 				}
