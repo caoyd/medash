@@ -114,16 +114,10 @@
 			})
 			// unique
 			![].unique && (Array.prototype.unique = function() {
-				let obj = {};
-				let arr = [];
-				for (let i = 0, len = this.length; i < len; i++) {
-					if (!obj[this[i]]) {
-						obj[this[i]] = 1;
-						arr.push(this[i]);
-					}
+				if (typeof Set !== 'undefined') {
+					return [...new Set(this)];
 				}
-				obj = null;
-				return arr.slice(0);
+				return this.filter((ele, index, array) => index === array.indexOf(ele));
 			})
 	
 		},
