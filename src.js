@@ -1,9 +1,9 @@
 /**
  * 个人常用JS函数整理
  * @author      {Coac}
- * @verstion    {1.0}
+ * @verstion    {1.2}
  * @create      {2017/06}
- * @update      {2017/09}
+ * @update      {2019/04}
  */
 ;(function(factory) {
   let isRegistedInModule = false;
@@ -202,11 +202,96 @@
   
   
     },
+
+    /**
+    * @desc 对象浅拷贝
+    * @param {Object} destination [目标对象]
+    * @param {Object} source [源对象]
+    * @return {Object}
+    */
+    extend(destination, source) {
+      for (let property in source) {
+        destination[property] = source[property];
+      }
+      return destination;
+    },
   
     // DOM
     // go to top
     gotop(config) {
       // to do
+    },
+
+    /**
+    * @desc 模拟事件
+    * @param {Element} element [DOM元素]
+    * @param {String} eventName [事件名称]
+    * @return {Element}
+    */
+    simulate(element, eventName) {
+      let eventMatchers = {
+        HTMLEvents: /^(?:load|unload|abort|error|select|change|submit|reset|focus|blur|resize|scroll)$/,
+        MouseEvents: /^(?:click|dblclick|mouse(?:down|up|over|move|out))$/
+      };
+      let defaultOptions = {
+        pointerX: 0,
+        pointerY: 0,
+        button: 0,
+        ctrlKey: false,
+        altKey: false,
+        shiftKey: false,
+        metaKey: false,
+        bubbles: true,
+        cancelable: true
+      };
+      let options = this.extend(defaultOptions, arguments[2] || {});
+      let oEvent,
+        eventType = null;
+    
+      for (let name in eventMatchers) {
+        if (eventMatchers[name].test(eventName)) {
+          eventType = name;
+          break;
+        }
+      }
+    
+      if (!eventType)
+        throw new SyntaxError(
+          "Only HTMLEvents and MouseEvents interfaces are supported"
+        );
+    
+      if (document.createEvent) {
+        oEvent = document.createEvent(eventType);
+        if (eventType == "HTMLEvents") {
+          oEvent.initEvent(eventName, options.bubbles, options.cancelable);
+        } else {
+          oEvent.initMouseEvent(
+            eventName,
+            options.bubbles,
+            options.cancelable,
+            document.defaultView,
+            options.button,
+            options.pointerX,
+            options.pointerY,
+            options.pointerX,
+            options.pointerY,
+            options.ctrlKey,
+            options.altKey,
+            options.shiftKey,
+            options.metaKey,
+            options.button,
+            element
+          );
+        }
+        element.dispatchEvent(oEvent);
+      } else {
+        options.clientX = options.pointerX;
+        options.clientY = options.pointerY;
+        let evt = document.createEventObject();
+        oEvent = this.extend(evt, options);
+        element.fireEvent("on" + eventName, oEvent);
+      }
+      return element;
     },
   
     // BOM
@@ -237,6 +322,16 @@
       }
       arr = [];
       return obj;
+    },
+  
+    /**
+    * @desc 获取元素计算后的样式
+    * @param {Element} obj [Dom元素]
+    * @param {String} attr [样式名]
+    * @return {String}
+    */
+    getStyle(obj, attr) {
+      return obj.currentStyle ? obj.currentStyle[attr] : document.defaultView.getComputedStyle(obj, null)[attr];
     },
   
     /**

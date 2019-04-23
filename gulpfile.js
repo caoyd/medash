@@ -33,8 +33,7 @@ const reportError = function (error) {
     this.emit('end');
 }
 
-// 压缩 js 文件
-gulp.task('compress', function() {
+function compress() {
     gulp.src(PATH.src)
         .pipe(babel(
             {
@@ -47,7 +46,12 @@ gulp.task('compress', function() {
             extname: '.min.js'
         }))
         .pipe(gulp.dest(PATH.dist));
-});
+}
+
+compress();
+
+// 压缩 js 文件
+gulp.task('compress', compress);
 
 // 监听任务
 gulp.task('default', function(){  
